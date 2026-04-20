@@ -5,13 +5,13 @@ from algorithms import bfs, dfs, tabu_search
 def build_graph():
     g = Graph()
 
-    # sample graph for testing
-    g.add_edge("A", "B", 4)
-    g.add_edge("A", "C", 2)
-    g.add_edge("C", "D", 3)
-    g.add_edge("D", "B", 2)
-    g.add_edge("B", "E", 5)
-    g.add_edge("D", "E", 4)
+    # Huntington-style road network
+    g.add_edge("Marshall University", "3rd Ave", 2)
+    g.add_edge("Marshall University", "Hal Greer Blvd", 4)
+    g.add_edge("3rd Ave", "5th Ave", 3)
+    g.add_edge("5th Ave", "Hal Greer Blvd", 2)
+    g.add_edge("Hal Greer Blvd", "Downtown Huntington", 5)
+    g.add_edge("5th Ave", "Downtown Huntington", 4)
 
     return g
 
@@ -19,8 +19,8 @@ def build_graph():
 def main():
     g = build_graph()
 
-    start = "A"
-    end = "E"
+    start = "Marshall University"
+    end = "Downtown Huntington"
 
     print("before update:")
     p1 = bfs(g, start, end)
@@ -31,8 +31,9 @@ def main():
     print("DFS:", p2, "cost:", g.path_cost(p2))
     print("Tabu:", p3, "cost:", c3)
 
-    print("\nupdating weights...")
-    g.update_weight("D", "E", 20)
+    # simulate traffic (road gets worse)
+    print("\nupdating weights (traffic on 5th Ave -> Downtown)...")
+    g.update_weight("5th Ave", "Downtown Huntington", 20)
 
     p1 = bfs(g, start, end)
     p2 = dfs(g, start, end)
