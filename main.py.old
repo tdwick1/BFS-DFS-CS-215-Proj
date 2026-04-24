@@ -1,0 +1,70 @@
+from graph import Graph
+from algorithms import bfs, dfs, tabu_search
+import time
+
+
+def build_graph():
+    g = Graph()
+
+    # Huntington-style road network
+    g.add_edge("Marshall University", "3rd Ave", 2)
+    g.add_edge("Marshall University", "Hal Greer Blvd", 4)
+    g.add_edge("3rd Ave", "5th Ave", 3)
+    g.add_edge("5th Ave", "Hal Greer Blvd", 2)
+    g.add_edge("Hal Greer Blvd", "Downtown Huntington", 5)
+    g.add_edge("5th Ave", "Downtown Huntington", 4)
+
+    return g
+
+
+def time_algorithm(name, func, *args):
+    start_time = time.time()
+    result = func(*args)
+    end_time = time.time()
+
+    print(name, "runtime:", round(end_time - start_time, 6), "seconds")
+    return result
+
+
+def main():
+    g = build_graph()
+
+    start = "Marshall University"
+    end = "Downtown Huntington"
+
+    print("STATIC GRAPH TESTS")
+    print("------------------")
+
+    bfs_path = time_algorithm("BFS", bfs, g, start, end)
+    dfs_path = time_algorithm("DFS", dfs, g, start, end)
+    tabu_path, tabu_cost = time_algorithm("Tabu Search", tabu_search, g, start, end)
+
+    print("\nBFS path:", bfs_path)
+    print("BFS cost:", g.path_cost(bfs_path))
+
+    print("\nDFS path:", dfs_path)
+    print("DFS cost:", g.path_cost(dfs_path))
+
+    print("\nTabu path:", tabu_path)
+    print("Tabu cost:", tabu_cost)
+
+    print("\nDYNAMIC GRAPH TEST")
+    print("------------------")
+
+    print("Simulating traffic increase on Hal Greer Blvd -> Downtown Huntington")
+    g.update_weight("Hal Greer Blvd", "Downtown Huntington", 20)
+
+    dynamic_tabu_path, dynamic_tabu_cost = time_algorithm(
+        "Dynamic Tabu Search",
+        tabu_search,
+        g,
+        start,
+        end
+    )
+
+    print("\nDynamic Tabu path:", dynamic_tabu_path)
+    print("Dynamic Tabu cost:", dynamic_tabu_cost)
+
+
+if __name__ == "__main__":
+    main()

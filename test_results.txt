@@ -1,0 +1,115 @@
+
+TRIAL 1
+
+Start node: 5316617466
+End node: 154777792
+
+BFS path length: 27
+BFS cost: 282.5246216210439
+
+DFS path length: 628
+DFS cost: 6827.223546425042
+
+Tabu path length: 33
+Tabu cost: 188.4198183546019
+Tabu convergence start: 203.37171093890845
+Tabu convergence end: 188.4198183546019
+
+Dynamic Tabu path length: 27
+Dynamic Tabu cost: 282.5246216210439
+Dynamic convergence start: 203.37171093890845
+Dynamic convergence end: 282.5246216210439
+
+------------------------------
+
+TRIAL 2
+
+Start node: 5316617466
+End node: 154777792
+
+BFS path length: 27
+BFS cost: 285.26904587242467
+
+DFS path length: 628
+DFS cost: 7041.912665760071
+
+Tabu path length: 35
+Tabu cost: 202.01636499572516
+Tabu convergence start: 203.37171093890845
+Tabu convergence end: 202.01636499572516
+
+Dynamic Tabu path length: 27
+Dynamic Tabu cost: 285.26904587242467
+Dynamic convergence start: 203.37171093890845
+Dynamic convergence end: 285.26904587242467
+
+------------------------------
+
+TRIAL 3
+
+Start node: 5316617466
+End node: 154777792
+
+BFS path length: 27
+BFS cost: 320.6398395133129
+
+DFS path length: 628
+DFS cost: 7078.326012317076
+
+Tabu path length: 27
+Tabu cost: 203.37171093890845
+Tabu convergence start: 203.37171093890845
+Tabu convergence end: 203.37171093890845
+
+Dynamic Tabu path length: 27
+Dynamic Tabu cost: 320.6398395133129
+Dynamic convergence start: 203.37171093890845
+Dynamic convergence end: 320.6398395133129
+
+------------------------------
+
+TRIAL 4
+
+Start node: 5316617466
+End node: 154777792
+
+BFS path length: 27
+BFS cost: 280.52789443284337
+
+DFS path length: 628
+DFS cost: 7215.639931733005
+
+Tabu path length: 27
+Tabu cost: 203.37171093890845
+Tabu convergence start: 203.37171093890845
+Tabu convergence end: 203.37171093890845
+
+Dynamic Tabu path length: 27
+Dynamic Tabu cost: 280.52789443284337
+Dynamic convergence start: 203.37171093890845
+Dynamic convergence end: 280.52789443284337
+
+------------------------------
+
+TRIAL 5
+
+Start node: 5316617466
+End node: 154777792
+
+BFS path length: 27
+BFS cost: 294.86933488025755
+
+DFS path length: 628
+DFS cost: 7264.269353168798
+
+Tabu path length: 27
+Tabu cost: 203.37171093890845
+Tabu convergence start: 203.37171093890845
+Tabu convergence end: 203.37171093890845
+
+Dynamic Tabu path length: 27
+Dynamic Tabu cost: 294.86933488025755
+Dynamic convergence start: 203.37171093890845
+Dynamic convergence end: 294.86933488025755
+
+------------------------------

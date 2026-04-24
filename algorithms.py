@@ -62,10 +62,9 @@ def random_path(graph, start, goal):
 
     return []
 
-
 def make_neighbor(graph, path, start, goal):
     if len(path) < 2:
-        return random_path(graph, start, goal)
+        return bfs(graph, start, goal)
 
     cut = random.randint(1, len(path) - 1)
     new_path = path[:cut]
@@ -74,13 +73,15 @@ def make_neighbor(graph, path, start, goal):
     rest = random_path(graph, last, goal)
 
     if not rest:
+        rest = bfs(graph, last, goal)
+
+    if not rest:
         return path
 
     return new_path[:-1] + rest
 
-
 def tabu_search(graph, start, goal):
-    current = random_path(graph, start, goal)
+    current = bfs(graph, start, goal)
     if not current:
         return [], float("inf")
 
@@ -94,7 +95,7 @@ def tabu_search(graph, start, goal):
 
         for _ in range(10):
             new_path = make_neighbor(graph, current, start, goal)
-            if new_path and tuple(new_path) not in tabu:
+            if new_path and new_path[0] == start and new_path[-1] == goal and tuple(new_path) not in tabu:
                 candidates.append(new_path)
 
         if not candidates:
