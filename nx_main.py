@@ -7,10 +7,11 @@ from collections import deque
 WEIGHT_ATTR = "travel_time"
 
 def build_osmnx_graph():
-    print("Downloading Huntington road graph...")
+    place = "Barboursville, West Virginia, USA"
+    print(f"Downloading {place} road graph...")
 
     G = ox.graph_from_place(
-        "Huntington, West Virginia, USA",
+        place,
         network_type="drive_service"
     )
 
@@ -31,16 +32,26 @@ def build_osmnx_graph():
     return G
 
 
-def get_start_end_nodes(G):
-    # rough Huntington coordinates
-    marshall_lat = 38.422
-    marshall_lon = -82.429
+# def get_start_end_nodes(G):
+#     # rough Huntington coordinates
+#     marshall_lat = 38.422
+#     marshall_lon = -82.429
 
-    downtown_lat = 38.4192
-    downtown_lon = -82.4452
+#     downtown_lat = 38.4192
+#     downtown_lon = -82.4452
 
-    start = ox.distance.nearest_nodes(G, marshall_lon, marshall_lat)
-    end = ox.distance.nearest_nodes(G, downtown_lon, downtown_lat)
+#     start = ox.distance.nearest_nodes(G, marshall_lon, marshall_lat)
+#     end = ox.distance.nearest_nodes(G, downtown_lon, downtown_lat)
+
+#     return start, end
+def get_start_end_nodes(G): # random nodes
+    nodes = list(G.nodes)
+
+    start = random.choice(nodes)
+    end = random.choice(nodes)
+
+    while end == start:
+        end = random.choice(nodes)
 
     return start, end
 
@@ -146,19 +157,18 @@ def tabu_search(G, start, goal, iterations=100, tabu_size=20, candidates_per_ite
     current = bfs(G, start, goal)
 
     if not current:
-        return [], float("inf"), []
+        return [], float("inf"), [], []
 
     best = current[:]
     best_cost = path_cost(G, best)
 
     tabu = [tuple(current)]
     history = [best_cost]
+    path_history = [best[:]]
 
     for i in range(iterations):
         if dynamic and i % 10 == 0 and i != 0:
             make_dynamic_changes(G, amount=15)
-
-            # weights changed, so recalculate the best path cost
             best_cost = path_cost(G, best)
 
         candidates = []
@@ -172,6 +182,7 @@ def tabu_search(G, start, goal, iterations=100, tabu_size=20, candidates_per_ite
 
         if not candidates:
             history.append(best_cost)
+            path_history.append(best[:])
             continue
 
         current = min(candidates, key=lambda p: path_cost(G, p))
@@ -187,8 +198,9 @@ def tabu_search(G, start, goal, iterations=100, tabu_size=20, candidates_per_ite
             tabu.pop(0)
 
         history.append(best_cost)
+        path_history.append(best[:])
 
-    return best, best_cost, history
+    return best, best_cost, history, path_history
 
 def make_dynamic_changes(G, amount=15):
     # print("Changing travel times randomly...")
@@ -211,6 +223,16 @@ def time_algorithm(name, func, *args):
     print(name, "runtime:", round(end_time - start_time, 6), "seconds")
     return result
 
+def path_to_latlong(G, path):
+    coords = []
+
+    for node in path:
+        lat = G.nodes[node]["y"]
+        lon = G.nodes[node]["x"]
+        coords.append((lat, lon))
+
+    return coords
+
 
 def main():
     G = build_osmnx_graph()
@@ -230,7 +252,7 @@ def main():
 
     bfs_path = time_algorithm("BFS", bfs, G, start, end)
     dfs_path = time_algorithm("DFS", dfs, G, start, end)
-    tabu_path, tabu_cost, tabu_history = time_algorithm(
+    tabu_path, tabu_cost, tabu_history, tabu_path_history = time_algorithm(
         "Tabu Search",
         tabu_search,
         G,
@@ -246,6 +268,11 @@ def main():
 
     print("\nTabu path length:", len(tabu_path))
     print("Tabu cost:", tabu_cost)
+
+    print("\nBFS path:", path_to_latlong(G, bfs_path))
+    print("\nDFS path:", path_to_latlong(G, dfs_path))
+    print("\nTabu path:", path_to_latlong(G, tabu_path))
+
     print("Tabu convergence start:", tabu_history[0])
     print("Tabu convergence end:", tabu_history[-1])
 
@@ -254,7 +281,7 @@ def main():
 
     # make_dynamic_changes(G, amount=15)
     print("Running Tabu Search while randomly changing edge weights during the search...")
-    dynamic_tabu_path, dynamic_tabu_cost, dynamic_history = time_algorithm(
+    dynamic_tabu_path, dynamic_tabu_cost, dynamic_history, dynamic_path_history = time_algorithm(
         "Dynamic Tabu Search",
         tabu_search,
         G,
@@ -268,6 +295,7 @@ def main():
 
     print("\nDynamic Tabu path length:", len(dynamic_tabu_path))
     print("Dynamic Tabu cost:", dynamic_tabu_cost)
+    print("\nDynamic Tabu path:", path_to_latlong(G, dynamic_tabu_path))
     print("Dynamic convergence start:", dynamic_history[0])
     print("Dynamic convergence end:", dynamic_history[-1])
 
@@ -284,11 +312,11 @@ def run_tests(num_trials=5):
 
             bfs_path = time_algorithm("BFS", bfs, G, start, end)
             dfs_path = time_algorithm("DFS", dfs, G, start, end)
-            tabu_path, tabu_cost, tabu_history = time_algorithm(
+            tabu_path, tabu_cost, tabu_history, tabu_path_history = time_algorithm(
                 "Tabu Search", tabu_search, G, start, end, 300, 20, 20
             )
 
-            dynamic_tabu_path, dynamic_tabu_cost, dynamic_history = time_algorithm(
+            dynamic_tabu_path, dynamic_tabu_cost, dynamic_history, dynamic_path_history = time_algorithm(
                 "Dynamic Tabu Search", tabu_search, G, start, end, 300, 20, 20, True
             )
 
@@ -311,6 +339,18 @@ Dynamic Tabu path length: {len(dynamic_tabu_path)}
 Dynamic Tabu cost: {dynamic_tabu_cost}
 Dynamic convergence start: {dynamic_history[0]}
 Dynamic convergence end: {dynamic_history[-1]}
+
+BFS path: {path_to_latlong(G, bfs_path)}
+
+DFS path: {path_to_latlong(G, dfs_path)}
+
+Tabu path: {path_to_latlong(G, tabu_path)}
+
+Dynamic Tabu path: {path_to_latlong(G, dynamic_tabu_path)}
+
+Tabu path history: {[path_to_latlong(G, p) for p in tabu_path_history[:10]]}
+
+Dynamic Tabu path history: {[path_to_latlong(G, p) for p in dynamic_path_history[:10]]}
 
 ------------------------------
 """
