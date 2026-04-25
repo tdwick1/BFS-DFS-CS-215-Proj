@@ -113,11 +113,54 @@ def dfs(G, start, goal):
     return []
 
 
-def dijkstra(G, start, goal):
-    try:
-        return nx.shortest_path(G, start, goal, weight=WEIGHT_ATTR)
-    except nx.NetworkXNoPath:
-        return []
+def save_final_path_graph(G, path, filename="final_path.png"):
+    if not path:
+        print("No path to draw")
+        return
+
+    import matplotlib.pyplot as plt
+
+    pos = {}
+    for node in G.nodes:
+        pos[node] = (G.nodes[node]["x"], G.nodes[node]["y"])
+
+    path_edges = []
+    for i in range(len(path) - 1):
+        path_edges.append((path[i], path[i + 1]))
+
+    plt.figure(figsize=(10, 10))
+
+    nx.draw_networkx_edges(
+        G,
+        pos,
+        edge_color="lightgray",
+        width=0.5,
+        arrows=False
+    )
+
+    nx.draw_networkx_edges(
+        G,
+        pos,
+        edgelist=path_edges,
+        edge_color="red",
+        width=2.5,
+        arrows=False
+    )
+
+    nx.draw_networkx_nodes(
+        G,
+        pos,
+        nodelist=path,
+        node_size=8,
+        node_color="red"
+    )
+
+    plt.axis("off")
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300)
+    plt.close()
+
+    print("Saved final path graph to", filename)
 
 
 def random_path(G, start, goal, max_steps=300):
@@ -290,20 +333,6 @@ def run_tests(num_trials=5):
                     20
                 )
 
-                dijkstra_path = []
-                dijkstra_cost = "N/A"
-                dijkstra_runtime = "N/A"
-                dijkstra_memory = "N/A"
-
-                if place == "Huntington, West Virginia, USA":
-                    dijkstra_path, dijkstra_runtime, dijkstra_memory = time_algorithm(
-                        "Dijkstra",
-                        dijkstra,
-                        G,
-                        start,
-                        end
-                    )
-                    dijkstra_cost = path_cost(G, dijkstra_path)
 
                 # save static costs BEFORE dynamic tabu modifies the graph
                 bfs_cost = path_cost(G, bfs_path)
@@ -361,20 +390,20 @@ Dynamic Tabu path: {path_to_latlong(G, dynamic_tabu_path)}
 Tabu path history: {[path_to_latlong(G, p) for p in tabu_path_history[:10]]}
 Dynamic Tabu path history: {[path_to_latlong(G, p) for p in dynamic_path_history[:10]]}
 """
-
-                if place == "Huntington, West Virginia, USA":
-                    results += f"""
-Dijkstra path length: {len(dijkstra_path)}
-Dijkstra cost: {dijkstra_cost}
-Dijkstra runtime: {dijkstra_runtime} seconds
-Dijkstra peak memory: {dijkstra_memory} MB
-Dijkstra path: {path_to_latlong(G, dijkstra_path)}
-"""
-
                 results += "\n------------------------------\n"
 
                 print(results)
                 f.write(results)
+
+        
+        # find most optimal path across all trials for this place and save graph
+        all_paths = [bfs_path, dfs_path, tabu_path, dynamic_tabu_path
+                        ] + tabu_path_history + dynamic_path_history
+        all_costs = [path_cost(G, p) for p in all_paths]
+        best_index = all_costs.index(min(all_costs))
+        best_path = all_paths[best_index]
+        save_final_path_graph(G, best_path, filename=f"final_path_{place.replace(', ', '_').replace(' ', '_')}_{int(time.time())}.png")
+
 
         print("saved results to", output_file)
 
